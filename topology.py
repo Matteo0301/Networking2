@@ -1,12 +1,17 @@
+import os
+import threading
 from mininet.topo import Topo
 from mininet.net import Mininet
 from mininet.node import OVSKernelSwitch, RemoteController
 from mininet.cli import CLI
 from mininet.link import TCLink
 import subprocess
-
+import gui
+from multiprocessing import Process
 
 # Class that defines a topology
+
+
 class MyTopo(Topo):
 
     def build(self):
@@ -66,7 +71,16 @@ if __name__ == "__main__":
     net.build()
     net.start()
 
-    # subprocess.call("./initial_scenario.sh")
+    subprocess.call("./init.sh")
 
+    gui_thread = threading.Thread(target=gui.setup_gui, args={'mininet': net})
+
+    gui_thread.start()
     CLI(net)
+
+    # CLI(net)
+    gui_thread.join()
+
+    # Stop the net and clean
     net.stop()
+    subprocess.run(["sudo", "mn", "-c"], check=True, capture_output=True)

@@ -1,3 +1,6 @@
+import subprocess
+import threading
+import time
 from ryu.base import app_manager
 from ryu.controller import ofp_event
 from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER
@@ -21,9 +24,9 @@ class TrafficSlicing(app_manager.RyuApp):
             3: {"00:00:00:00:00:05": 2, "00:00:00:00:00:06": 3, "00:00:00:00:00:07": 4, "00:00:00:00:00:08": 5, "00:00:00:00:00:09": 6, "00:00:00:00:00:01": 1, "00:00:00:00:00:02": 1, "00:00:00:00:00:03": 1, "00:00:00:00:00:04": 1, "00:00:00:00:00:0a": 1},
         }
 
-        """ self.threadd = threading.Thread(target=self.inserimento, args=())
-        self.threadd.daemon = True
-        self.threadd.start() """
+        self.thread = threading.Thread(target=self.init, args=())
+        # self.thread.daemon = True
+        self.thread.start()
 
         # Source Mapping
         self.port_to_port = {
@@ -31,8 +34,6 @@ class TrafficSlicing(app_manager.RyuApp):
             2: {3: 1, 4: 1, 5: 1, 3: 2, 4: 2, 5: 2},
             3: {3: 1, 4: 1, 5: 1, 3: 2, 4: 2, 5: 2},
         }
-
-        # self.gui_process = None
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
     def switch_features_handler(self, ev):
@@ -101,8 +102,7 @@ class TrafficSlicing(app_manager.RyuApp):
                 self.add_flow(datapath, 1, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
 
-
-"""     def init(self):
+    def init(self):
         time.sleep(1)
 
-        subprocess.run(['python3', 'gui.py']) """
+        subprocess.run(["sudo", "python3", "topology.py"])
