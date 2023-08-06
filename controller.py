@@ -25,7 +25,6 @@ class TrafficSlicing(app_manager.RyuApp):
         }
 
         self.thread = threading.Thread(target=self.init, args=())
-        # self.thread.daemon = True
         self.thread.start()
 
         # Source Mapping
