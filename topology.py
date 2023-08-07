@@ -73,7 +73,12 @@ if __name__ == "__main__":
 
     subprocess.run(["./init.sh"])
 
-    # setup_gui()
+    """ for i in range(9):
+        hostname = "h" + str(i+1)
+        h = net.getNodeByName(hostname)
+        h.sendCmd("iperf -s &") """
+
+    # setup_gui(net)
 
     gui_thread = threading.Thread(target=setup_gui, args={'mininet': net})
     gui_thread.start()

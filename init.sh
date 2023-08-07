@@ -47,42 +47,4 @@ sudo ovs-ofctl add-flow s2 ip,priority=65500,in_port=1,nw_dst=10.0.0.10,idle_tim
 sudo ovs-ofctl add-flow s2 ip,priority=65500,in_port=2,nw_dst=10.0.0.10,idle_timeout=0,actions=output:3,normal
 
 
-# Initialize queues of slice1
-
-echo "SWITCH 1"
-# First switch
-sudo ovs-vsctl set port s1-eth1 qos=@newqos -- \
---id=@newqos create QoS type=linux-htb \
-other-config:max-rate=10000000 \
-queues=1=@1q,3=@3q -- \
---id=@1q create queue other-config:min-rate=1000000 other-config:max-rate=4000000 -- \
---id=@3q create queue other-config:min-rate=1000000 other-config:max-rate=2000000
-
-# Second switch
-echo "SWITCH 2"
-# First port
-sudo ovs-vsctl set port s2-eth1 qos=@newqos -- \
---id=@newqos create QoS type=linux-htb \
-other-config:max-rate=10000000 \
-queues=1=@1q,3=@3q -- \
---id=@1q create queue other-config:min-rate=1000000 other-config:max-rate=4000000 -- \
---id=@3q create queue other-config:min-rate=1000000 other-config:max-rate=2000000
-
-
-# Second port
-sudo ovs-vsctl set port s2-eth2 qos=@newqos -- \
---id=@newqos create QoS type=linux-htb \
-other-config:max-rate=10000000 \
-queues=2=@2q,3=@3q -- \
---id=@2q create queue other-config:min-rate=1000000 other-config:max-rate=5000000 -- \
---id=@3q create queue other-config:min-rate=1000000 other-config:max-rate=2000000
-
-# Third switch
-echo "SWITCH 3"
-# Second port
-sudo ovs-vsctl set port s3-eth1 qos=@newqos -- \
---id=@newqos create QoS type=linux-htb \
-other-config:max-rate=10000000 \
-queues=2=@2q,3=@3q -- \
---id=@2q create queue other-config:min-rate=1000000 other-config:max-rate=5000000 -- \
---id=@3q create queue other-config:min-rate=1000000 other-config:max-rate=2000000
+./queues.sh 4000 5000 2000
