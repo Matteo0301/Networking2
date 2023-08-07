@@ -6,7 +6,7 @@ from mininet.node import OVSKernelSwitch, RemoteController
 from mininet.cli import CLI
 from mininet.link import TCLink
 import subprocess
-import gui
+from gui import *
 from multiprocessing import Process
 
 # Class that defines a topology
@@ -71,14 +71,14 @@ if __name__ == "__main__":
     net.build()
     net.start()
 
-    subprocess.call("./init.sh")
+    subprocess.run(["./init.sh"])
 
-    gui_thread = threading.Thread(target=gui.setup_gui, args={'mininet': net})
+    # setup_gui()
 
+    gui_thread = threading.Thread(target=setup_gui, args={'mininet': net})
     gui_thread.start()
     CLI(net)
 
-    # CLI(net)
     gui_thread.join()
 
     # Stop the net and clean

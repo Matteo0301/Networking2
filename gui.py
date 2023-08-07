@@ -2,11 +2,136 @@ import tkinter as tk
 from PIL import Image, ImageTk
 import subprocess
 
+host_width = 50
+host_height = 30
+server_width = 30
+server_height = 50
 
-# Button handler
+# Global GUI variables
+canvas = None
+image = None
+# Sliders for slice bandwidth
+slider1 = None
+slider2 = None
+slider3 = None
+# Labels
+label1 = None
+label2 = None
+label3 = None
+label_server = None
 
-def handle_slice():
-    pass
+# Variables for the slices
+slice1_active = False
+slice2_active = False
+slice3_active = False
+
+rectangles = [None for _ in range(9)]
+server_rectangle = None
+
+slice1_hosts = [2, 3, 4]
+slice2_hosts = [6, 7, 8, 9]
+slice3_hosts = [1, 5]
+server_slices = [0, 1, 2]  # Slice number 0 means no slice active
+server_slice_index = 0  # The index of the active slice
+
+slice1_color = "#CC0000"
+slice2_color = "#00CC00"
+slice3_color = "#0000CC"
+
+host_coordinates = [
+    (65, 8),
+    (65, 100),
+    (65, 135),
+    (65, 181),
+    (390, 8),
+    (390, 65),
+    (390, 100),
+    (390, 135),
+    (390, 181),
+]
+
+server_coordinates = (230, 190)
+
+
+def draw_rec(x, width, y, height, color):
+    r = canvas.create_rectangle(
+        x, y, x+width, y+height, fill=color, )
+    canvas.tag_lower(r, image)
+    return r
+
+
+# Button handlers
+
+def toggle_slice(active, hosts, color, script):
+    if active:
+        subprocess.run([script, "start"])
+        for h in hosts:
+            i = h-1
+            rectangles[i] = draw_rec(
+                host_coordinates[i][0], host_width, host_coordinates[i][1], host_height, color)
+    else:
+        subprocess.run([script, "stop"])
+        for h in hosts:
+            i = h-1
+            canvas.delete(rectangles[i])
+            rectangles[i] = None
+
+
+def slice1_handler():
+    global slice1_active
+    slice1_active = not slice1_active
+    toggle_slice(slice1_active, slice1_hosts, slice1_color, "./slice1.sh")
+    if slice1_active:
+        label1.configure(text="Slice 1: active")
+    else:
+        label1.configure(text="Slice 1: not active")
+
+
+def slice2_handler():
+    global slice2_active
+    slice2_active = not slice2_active
+    toggle_slice(slice2_active, slice2_hosts, slice2_color, "./slice2.sh")
+    if slice2_active:
+        label2.configure(text="Slice 2: active")
+    else:
+        label2.configure(text="Slice 2: not active")
+
+
+def slice3_handler():
+    global slice3_active
+    slice3_active = not slice3_active
+    toggle_slice(slice3_active, slice3_hosts, slice3_color, "./slice3.sh")
+    if slice3_active:
+        label3.configure(text="Slice 3: active")
+    else:
+        label3.configure(text="Slice 3: not active")
+
+
+def clear_server_rec():
+    global server_rectangle
+    if server_rectangle != None:
+        canvas.delete(server_rectangle)
+        server_rectangle = None
+
+
+def server_handler():
+    global server_slice_index, server_rectangle
+    server_slice_index = (server_slice_index + 1) % len(server_slices)
+    clear_server_rec()
+    if server_slice_index == 0:
+        subprocess.run(["./server_slice.sh", "remove1"])
+        subprocess.run(["./server_slice.sh", "remove2"])
+        label_server.configure(text="No slice")
+    elif server_slice_index == 1:
+        subprocess.run(["./server_slice.sh", "add1"])
+        server_rectangle = draw_rec(
+            server_coordinates[0], server_width, server_coordinates[1], server_height, slice1_color)
+        label_server.configure(text="Slice 1")
+    elif server_slice_index == 2:
+        subprocess.run(["./server_slice.sh", "add2"])
+        server_rectangle = draw_rec(
+            server_coordinates[0], server_width, server_coordinates[1], server_height, slice2_color)
+        label_server.configure(text="Slice 2")
 
 
 def change_bandwidth():
@@ -14,10 +139,11 @@ def change_bandwidth():
 
 
 def setup_gui(mininet=None):
+    global canvas, image, slider1, slider2, slider3, label1, label2, label3, label_server
     # Create the window
     window = tk.Tk()
     window.title("Networking 2 project")
-    window.geometry("900x600")
+    window.geometry("1000x600")
     # Load the image
     image = Image.open("topology.png")
     photo = ImageTk.PhotoImage(image)
@@ -35,11 +161,13 @@ def setup_gui(mininet=None):
     frame2.pack(side=tk.TOP)
     frame3 = tk.Frame(slices_frame)
     frame3.pack(side=tk.TOP)
+    server_frame = tk.Frame(slices_frame)
+    server_frame.pack(side=tk.TOP)
 
     # First slice
-    button1 = tk.Button(frame1, text="ON 1", command=handle_slice)
+    button1 = tk.Button(frame1, text="TOGGLE 1", command=slice1_handler)
     button1.pack(side=tk.LEFT, padx=10, pady=5)
-    label1 = tk.Label(frame1, text="Slice 1: non attivo")
+    label1 = tk.Label(frame1, text="Slice 1: not active")
     label1.pack(side=tk.LEFT, padx=10, pady=5)
 
     slider1 = tk.Scale(frame1, from_=1000, to=3000,
@@ -49,10 +177,10 @@ def setup_gui(mininet=None):
     set_bandwidth1.pack(side=tk.RIGHT, padx=10, pady=5)
 
     # Second slice
-    button2 = tk.Button(frame2, text="ON 2", command=handle_slice)
+    button2 = tk.Button(frame2, text="TOGGLE 2", command=slice2_handler)
     button2.pack(side=tk.LEFT, padx=10, pady=5)
 
-    label2 = tk.Label(frame2, text="Slice 2: non attivo")
+    label2 = tk.Label(frame2, text="Slice 2: not active")
     label2.pack(side=tk.LEFT, padx=10, pady=5)
 
     slider2 = tk.Scale(frame2, from_=1000, to=3000,
@@ -62,10 +190,10 @@ def setup_gui(mininet=None):
     set_bandwidth2.pack(side=tk.RIGHT, padx=10, pady=5)
 
     # Third slice
-    button3 = tk.Button(frame3, text="ON 3", command=handle_slice)
+    button3 = tk.Button(frame3, text="TOGGLE 3", command=slice3_handler)
     button3.pack(side=tk.LEFT, padx=10, pady=5)
 
-    label3 = tk.Label(frame3, text="Slice 3: non attivo")
+    label3 = tk.Label(frame3, text="Slice 3: not active")
     label3.pack(side=tk.LEFT, padx=10, pady=5)
 
     slider3 = tk.Scale(frame3, from_=1000, to=4000,
@@ -73,6 +201,15 @@ def setup_gui(mininet=None):
     slider3.pack(side=tk.RIGHT, padx=10, pady=5)
     set_bandwidth3 = tk.Button(frame3, text="SET", command=change_bandwidth)
     set_bandwidth3.pack(side=tk.RIGHT, padx=10, pady=5)
+
+    # Server slice
+    server_button = tk.Button(
+        server_frame, text="TOGGLE SERVER", command=server_handler)
+    server_button.pack(side=tk.LEFT, padx=10, pady=5)
+
+    label_server = tk.Label(server_frame, text="No slice")
+    label_server.pack(side=tk.LEFT, padx=10, pady=5)
+
     window.mainloop()
 
 
