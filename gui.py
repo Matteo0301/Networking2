@@ -2,10 +2,10 @@ import tkinter as tk
 from PIL import Image, ImageTk
 import subprocess
 
-host_width = 50
-host_height = 30
-server_width = 30
-server_height = 50
+host_width = 40
+host_height = 32
+server_width = 25
+server_height = 40
 
 # Global GUI variables
 canvas = None
@@ -37,23 +37,23 @@ slice3_hosts = [1, 5]
 server_slices = [0, 1, 2]  # Slice number 0 means no slice active
 server_slice_index = 0  # The index of the active slice
 
-slice1_color = "#CC0000"
-slice2_color = "#00CC00"
-slice3_color = "#0000CC"
+slice1_color = "#FF0000"
+slice2_color = "#00FF00"
+slice3_color = "#0000FF"
 
 host_coordinates = [
-    (65, 8),
-    (65, 100),
-    (65, 135),
-    (65, 181),
-    (390, 8),
-    (390, 65),
-    (390, 100),
-    (390, 135),
-    (390, 181),
+    (78, 12),
+    (83, 115),
+    (83, 167),
+    (83, 224),
+    (383, 12),
+    (383, 63),
+    (383, 115),
+    (383, 167),
+    (383, 224),
 ]
 
-server_coordinates = (230, 190)
+server_coordinates = (233, 218)
 
 # Mininet object
 net = None
@@ -287,4 +287,4 @@ def setup_gui(mininet=None):
     window.mainloop()
 
 
-# setup_gui()
+setup_gui()
