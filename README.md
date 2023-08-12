@@ -43,4 +43,6 @@ At the beginning all slices are disabled and you can toggle them and cycle over 
 
 Using the sliders and the "SET" buttons it is also possible to limit the bandwidth of the slices.
 
+To verify bandwidth between two hosts it is possible to use the iperf command, either via the CLI opened in the terminal or by using the GUI.
+
 To stop the program you must close the graphical window and exit from mininet in the terminal. After that, the program will automatically clean up the environment.
