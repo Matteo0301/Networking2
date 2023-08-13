@@ -1,4 +1,3 @@
-import threading
 import tkinter as tk
 from PIL import Image, ImageTk
 import subprocess
@@ -44,8 +43,9 @@ class GUI:
         ]
         self.server_coordinates = (233, 218)
 
-        self.gui_thread = threading.Thread(target=self.setup_gui)
-        self.gui_thread.start()
+        self.setup_gui()
+        """ self.gui_thread = threading.Thread(target=self.setup_gui)
+        self.gui_thread.start() """
 
     def toggle_slice(self, active, hosts, color, script):
         if active:

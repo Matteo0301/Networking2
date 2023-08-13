@@ -81,11 +81,13 @@ if __name__ == "__main__":
     h = net.getNodeByName("server")
     print(h.cmd("iperf -s &"))
 
+    cli_thread = threading.Thread(target=lambda: CLI(net))
+    cli_thread.start()
     gui = GUI(net)
 
-    CLI(net)
+    # CLI(net)
 
-    gui.gui_thread.join()
+    cli_thread.join()
 
     # Stop the net and clean
     net.stop()
